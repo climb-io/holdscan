@@ -1,6 +1,6 @@
 # 岩點偵測模型（ONNX）
 
-`freeclimbs-{640,960,1280}.onnx` 由 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)
+`freeclimbs-960.onnx` 由 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)
 的 `.pt` 權重以 Ultralytics 匯出（opset 17、固定輸入尺寸），未重新訓練。原權重授權為 AGPL-3.0，本目錄沿用同一授權。
 
 重新匯出：
