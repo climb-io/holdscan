@@ -28,7 +28,7 @@
           ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 4) : 1;
           resolve();
         };
-        s.onerror = () => reject(new Error(T('無法載入 onnxruntime-web（請確認網路）', 'Could not load onnxruntime-web (check your connection)')));
+        s.onerror = () => { ortReady = null; s.remove(); reject(new Error(T('無法載入 onnxruntime-web（請確認網路）', 'Could not load onnxruntime-web (check your connection)'))); };
         document.head.append(s);
       });
     }
@@ -118,7 +118,7 @@
       const a = await navigator.gpu.requestAdapter();
       if (!a) return null;
       const i = a.info || {};
-      return [ORT_VERSION, i.vendor, i.architecture, i.device, i.description].join('|');
+      return [ORT_VERSION, navigator.userAgent, i.vendor, i.architecture, i.device, i.description].join('|');   // 瀏覽器更新後重新檢查
     } catch (e) { return null; }
   }
 
