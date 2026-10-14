@@ -14,6 +14,7 @@
   const MODEL_URL = new URL(`web/models/freeclimbs-${MODEL_SIZE}.onnx`, document.currentScript.src).href;
   const CHOICE_KEY = 'spraywall.backend.v1';
   const CONF = 0.25, IOU = 0.7;
+  const T = (zh, en) => (document.documentElement.lang || '').startsWith('zh') ? zh : en;
 
   let ortReady = null, modelBuf = null, session = null, backend = null;
 
@@ -27,7 +28,7 @@
           ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 4) : 1;
           resolve();
         };
-        s.onerror = () => reject(new Error('無法載入 onnxruntime-web（請確認網路）'));
+        s.onerror = () => reject(new Error(T('無法載入 onnxruntime-web（請確認網路）', 'Could not load onnxruntime-web (check your connection)')));
         document.head.append(s);
       });
     }
@@ -36,9 +37,9 @@
 
   async function loadModel(status) {
     if (!modelBuf) {
-      status('下載岩點偵測模型（約 12 MB，只有第一次）…');
+      status(T('下載岩點偵測模型（約 12 MB，只有第一次）…', 'Downloading the hold detector (about 12 MB, first time only)…'));
       const res = await fetch(MODEL_URL);
-      if (!res.ok) throw new Error(`模型下載失敗（HTTP ${res.status}）`);
+      if (!res.ok) throw new Error(T(`模型下載失敗（HTTP ${res.status}）`, `Model download failed (HTTP ${res.status})`));
       modelBuf = await res.arrayBuffer();
     }
     return modelBuf;
@@ -151,7 +152,7 @@
       try { return { kind: saved, sess: await create(saved) }; } catch (e) { /* 記住的方式失效，重新檢查 */ }
     }
 
-    status('第一次使用：檢查這支手機最快又正確的執行方式（約 5–10 秒）…');
+    status(T('第一次使用：檢查這支手機最快又正確的執行方式（約 5–10 秒）…', 'First run: finding the fastest reliable mode for this phone (5–10 s)…'));
     const { tensor } = preprocess(canaryImage());
     const wasm = await create('wasm');
     const ref = (await run(wasm, tensor)).slice();
@@ -175,14 +176,14 @@
     if (session) return;
     await loadOrt();
     await loadModel(status);
-    status('準備偵測模型…');
+    status(T('準備偵測模型…', 'Preparing the detector…'));
     const p = await pickBackend(status);
     session = p.sess; backend = p.kind;
   }
 
   async function detect(src, status = () => {}) {
     await ensureSession(status);
-    status('偵測岩點中…');
+    status(T('偵測岩點中…', 'Finding holds…'));
     const t = performance.now();
     const { tensor, r } = preprocess(src);
     const boxes = postprocess(await run(session, tensor), r);
