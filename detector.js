@@ -13,7 +13,10 @@
   const MODEL_SIZE = 960;
   const MODEL_URL = new URL(`web/models/freeclimbs-${MODEL_SIZE}.onnx`, document.currentScript.src).href;
   const CHOICE_KEY = 'spraywall.backend.v1';
-  const CONF = 0.25, IOU = 0.7;
+  // 分數門檻 0.25：用岩館實際照片看過，提高會漏掉跟牆面顏色接近的岩點，降低多出來的大多是牆上的字和岩點的影子
+  // 重複框：重疊比例（IoU）超過 0.5，或一個框有 75% 落在另一個大小相近（面積比 < 2.5）的框裡，就當作同一顆岩點
+  //（模型常把「岩點」和「岩點＋下方影子」各框一次）；大岩塊上的小岩點面積差很多，不受影響
+  const CONF = 0.25, IOU = 0.5, INSIDE = 0.75, SAME_SIZE = 2.5;
   const T = (zh, en) => (document.documentElement.lang || '').startsWith('zh') ? zh : en;
 
   let ortReady = null, modelBuf = null, session = null, backend = null;
@@ -69,7 +72,7 @@
     return out[sess.outputNames[0]].data;
   }
 
-  // 輸出 [1, 5, N] = cx, cy, w, h, score → 外框 + NMS
+  // 輸出 [1, 5, N] = cx, cy, w, h, score → 外框 + NMS（含上面說的重複框規則）
   function postprocess(data, r) {
     const N = data.length / 5, cand = [];
     for (let i = 0; i < N; i++) {
@@ -89,8 +92,9 @@
         const b = cand[j];
         const iw = Math.min(a[2], b[2]) - Math.max(a[0], b[0]), ih = Math.min(a[3], b[3]) - Math.max(a[1], b[1]);
         if (iw <= 0 || ih <= 0) continue;
-        const inter = iw * ih;
-        if (inter / (aa + (b[2] - b[0]) * (b[3] - b[1]) - inter) > IOU) dead[j] = 1;
+        const inter = iw * ih, ab = (b[2] - b[0]) * (b[3] - b[1]);
+        const small = Math.min(aa, ab), big = Math.max(aa, ab);
+        if (inter / (aa + ab - inter) > IOU || (inter / small > INSIDE && big / small < SAME_SIZE)) dead[j] = 1;
       }
     }
     return keep;
