@@ -17,7 +17,7 @@
   // 重複框：重疊比例（IoU）超過 0.5，或一個框有 75% 落在另一個大小相近（面積比 < 2.5）的框裡，就當作同一顆岩點
   //（模型常把「岩點」和「岩點＋下方影子」各框一次）；大岩塊上的小岩點面積差很多，不受影響
   const CONF = 0.25, IOU = 0.5, INSIDE = 0.75, SAME_SIZE = 2.5;
-  const T = (zh, en) => (document.documentElement.lang || '').startsWith('zh') ? zh : en;
+  const T = (k, ...a) => (self.spraywallT ? self.spraywallT(k, ...a) : k);   // 訊息在語言包（i18n/<語言>.js），用 index.html 的 t()
 
   let ortReady = null, modelBuf = null, session = null, backend = null;
 
@@ -31,7 +31,7 @@
           ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 4) : 1;
           resolve();
         };
-        s.onerror = () => { ortReady = null; s.remove(); reject(new Error(T('無法載入 onnxruntime-web（請確認網路）', 'Could not load onnxruntime-web (check your connection)'))); };
+        s.onerror = () => { ortReady = null; s.remove(); reject(new Error(T('ortLoadFail'))); };
         document.head.append(s);
       });
     }
@@ -40,9 +40,9 @@
 
   async function loadModel(status) {
     if (!modelBuf) {
-      status(T('下載岩點偵測模型（約 12 MB，只有第一次）…', 'Downloading the hold detector (about 12 MB, first time only)…'));
+      status(T('detDownload'));
       const res = await fetch(MODEL_URL);
-      if (!res.ok) throw new Error(T(`模型下載失敗（HTTP ${res.status}）`, `Model download failed (HTTP ${res.status})`));
+      if (!res.ok) throw new Error(T('modelHttp', res.status));
       modelBuf = await res.arrayBuffer();
     }
     return modelBuf;
@@ -156,7 +156,7 @@
       try { return { kind: saved, sess: await create(saved) }; } catch (e) { /* 記住的方式失效，重新檢查 */ }
     }
 
-    status(T('第一次使用：檢查這支手機最快又正確的執行方式（約 5–10 秒）…', 'First run: finding the fastest reliable mode for this phone (5–10 s)…'));
+    status(T('detFirstRun'));
     const { tensor } = preprocess(canaryImage());
     const wasm = await create('wasm');
     const ref = (await run(wasm, tensor)).slice();
@@ -180,14 +180,14 @@
     if (session) return;
     await loadOrt();
     await loadModel(status);
-    status(T('準備偵測模型…', 'Preparing the detector…'));
+    status(T('detPreparing'));
     const p = await pickBackend(status);
     session = p.sess; backend = p.kind;
   }
 
   async function detect(src, status = () => {}) {
     await ensureSession(status);
-    status(T('偵測岩點中…', 'Finding holds…'));
+    status(T('detFinding'));
     const t = performance.now();
     const { tensor, r } = preprocess(src);
     const boxes = postprocess(await run(session, tensor), r);
