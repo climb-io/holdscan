@@ -20,7 +20,7 @@
 `POST https://asia-east1-climbio-spraywall.cloudfunctions.net/detect`
 
 - 標頭：`Authorization: Bearer <Firebase ID token>`（匿名登入也可以）
-- 內容：`{ "img": "<JPEG 或 PNG 的 base64>" }`（建議先縮到長邊 960，模型輸入就是 960）
+- 內容：`{ "img": "<JPEG 或 PNG 的 base64>" }`（傳原尺寸即可，長邊建議最多 2048；伺服器會縮到模型輸入的 960。在用戶端先縮到 960 再壓 JPEG 會漏掉幾顆分數接近門檻的岩點）
 - 回傳：`{ "model": "freeclimbs-960", "boxes": [[x0, y0, x1, y1, score], ...], "w", "h", "ms", "source" }`，框是收到的照片座標
 
 照片只在處理當下存在伺服器記憶體中，不存檔、不留紀錄、不用來訓練模型。

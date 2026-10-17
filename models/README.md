@@ -3,7 +3,7 @@
 `freeclimbs-960.onnx` 由 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)
 的 `.pt` 權重以 Ultralytics 匯出（opset 17、固定輸入尺寸），未重新訓練。原權重授權為 AGPL-3.0，本專案（holdscan）沿用同一授權。
 
-重新匯出：
+重新匯出（在 holdlab 執行，權重下載方式見 holdlab 的 README）：
 
 ```bash
 .venv/bin/python -c "from ultralytics import YOLO; YOLO('weights/jwlarocque/yolov8n-freeclimbs-detect-2.pt').export(format='onnx', imgsz=960, opset=17)"
