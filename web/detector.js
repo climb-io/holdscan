@@ -1,4 +1,5 @@
 // 岩點偵測（瀏覽器端）：onnxruntime-web 跑 freeclimbs YOLOv8n，輸出岩點外框。
+// 前後處理在 core/detect-core.js（跟雲端函式共用），要先載入。
 //
 // 執行方式自我檢查：各家手機 GPU 的 WebGPU 實作有 bug（例如 Adreno 7xx 用 NHWC 會算錯），
 // 所以第一次用時拿一張固定的測試圖，先用 WASM 算出參考答案，再依序試 WebGPU NHWC → NCHW，
@@ -10,13 +11,9 @@
 (() => {
   'use strict';
   const ORT_VERSION = '1.30.0';
-  const MODEL_SIZE = 960;
-  const MODEL_URL = new URL(`web/models/freeclimbs-${MODEL_SIZE}.onnx`, document.currentScript.src).href;
+  const Core = self.HoldScanCore, MODEL_SIZE = Core.MODEL_SIZE;
+  const MODEL_URL = new URL(`../models/${Core.MODEL}.onnx`, document.currentScript.src).href;
   const CHOICE_KEY = 'spraywall.backend.v1';
-  // 分數門檻 0.25：用岩館實際照片看過，提高會漏掉跟牆面顏色接近的岩點，降低多出來的大多是牆上的字和岩點的影子
-  // 重複框：重疊比例（IoU）超過 0.5，或一個框有 75% 落在另一個大小相近（面積比 < 2.5）的框裡，就當作同一顆岩點
-  //（模型常把「岩點」和「岩點＋下方影子」各框一次）；大岩塊上的小岩點面積差很多，不受影響
-  const CONF = 0.25, IOU = 0.5, INSIDE = 0.75, SAME_SIZE = 2.5;
   const T = (k, ...a) => (self.spraywallT ? self.spraywallT(k, ...a) : k);   // 訊息在語言包（i18n/<語言>.js），用 index.html 的 t()
 
   let ortReady = null, modelBuf = null, session = null, backend = null;
@@ -55,16 +52,12 @@
 
   // 等比縮放貼到左上、補灰邊 114，轉 NCHW float32
   function preprocess(src) {
-    const S = MODEL_SIZE, r = S / Math.max(src.width, src.height);
+    const S = MODEL_SIZE, r = Core.scaleFor(src.width, src.height);
     const c = document.createElement('canvas'); c.width = S; c.height = S;
     const g = c.getContext('2d', { willReadFrequently: true });
     g.fillStyle = 'rgb(114,114,114)'; g.fillRect(0, 0, S, S);
     g.drawImage(src, 0, 0, Math.round(src.width * r), Math.round(src.height * r));
-    const px = g.getImageData(0, 0, S, S).data, n = S * S, out = new Float32Array(3 * n);
-    for (let i = 0, j = 0; i < n; i++, j += 4) {
-      out[i] = px[j] / 255; out[n + i] = px[j + 1] / 255; out[2 * n + i] = px[j + 2] / 255;
-    }
-    return { tensor: new ort.Tensor('float32', out, [1, 3, S, S]), r };
+    return { tensor: new ort.Tensor('float32', Core.toTensorData(g.getImageData(0, 0, S, S).data), [1, 3, S, S]), r };
   }
 
   async function run(sess, tensor) {
@@ -72,33 +65,7 @@
     return out[sess.outputNames[0]].data;
   }
 
-  // 輸出 [1, 5, N] = cx, cy, w, h, score → 外框 + NMS（含上面說的重複框規則）
-  function postprocess(data, r) {
-    const N = data.length / 5, cand = [];
-    for (let i = 0; i < N; i++) {
-      const sc = data[4 * N + i];
-      if (!(sc >= CONF)) continue;
-      const cx = data[i], cy = data[N + i], w = data[2 * N + i], h = data[3 * N + i];
-      cand.push([(cx - w / 2) / r, (cy - h / 2) / r, (cx + w / 2) / r, (cy + h / 2) / r, sc]);
-    }
-    cand.sort((a, b) => b[4] - a[4]);
-    const keep = [], dead = new Uint8Array(cand.length);
-    for (let i = 0; i < cand.length; i++) {
-      if (dead[i]) continue;
-      const a = cand[i]; keep.push(a);
-      const aa = (a[2] - a[0]) * (a[3] - a[1]);
-      for (let j = i + 1; j < cand.length; j++) {
-        if (dead[j]) continue;
-        const b = cand[j];
-        const iw = Math.min(a[2], b[2]) - Math.max(a[0], b[0]), ih = Math.min(a[3], b[3]) - Math.max(a[1], b[1]);
-        if (iw <= 0 || ih <= 0) continue;
-        const inter = iw * ih, ab = (b[2] - b[0]) * (b[3] - b[1]);
-        const small = Math.min(aa, ab), big = Math.max(aa, ab);
-        if (inter / (aa + ab - inter) > IOU || (inter / small > INSIDE && big / small < SAME_SIZE)) dead[j] = 1;
-      }
-    }
-    return keep;
-  }
+  const postprocess = Core.postprocess;
 
   // 自我檢查用的固定測試圖（與 web/bench.html 的測試圖相同）
   function canaryImage() {
