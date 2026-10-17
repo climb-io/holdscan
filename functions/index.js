@@ -31,7 +31,7 @@ async function detect(buf) {
   return { boxes: Core.postprocess(out[s.outputNames[0]].data, r), w: meta.width, h: meta.height, ms: Date.now() - t0 };
 }
 
-exports.detect = onRequest({ region: 'asia-east1', invoker: 'public', memory: '1GiB', cpu: CPUS, timeoutSeconds: 60, concurrency: 1, maxInstances: 3 }, async (req, res) => {
+exports.detect = onRequest({ region: 'asia-east1', invoker: 'public', memory: '1GiB', cpu: CPUS, timeoutSeconds: 60, concurrency: 1, maxInstances: 5 }, async (req, res) => {
   const origin = req.get('origin');
   if (ORIGINS.includes(origin) || /^https:\/\/climbio--[a-z0-9-]+\.web\.app$/.test(origin || '')) { res.set('Access-Control-Allow-Origin', origin); res.set('Vary', 'Origin'); }
   if (req.method === 'OPTIONS') {
