@@ -3,7 +3,7 @@
 岩點偵測：照片 → 岩點外框。使用 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)（freeclimbs YOLOv8n），
 因此本專案以 **AGPL-3.0** 授權（見 [LICENSE](LICENSE)、[models/README.md](models/README.md)）。
 
-只負責「照片 → 框」；外框描繪、MobileSAM 重描、顏色計算在 climb-io/holdkit（Apache-2.0），App 在 Spray Wall。
+只負責「照片 → 框」；外框描繪、MobileSAM 重描、顏色計算在 climb-io/holdkit（Apache-2.0），App 在 Climbio。
 三者之間只交換資料（框的陣列、岩點資料包），不互相引用程式。
 
 ## 結構
