@@ -17,7 +17,7 @@
 
 ## 雲端 API
 
-`POST https://asia-east1-climbio-spraywall.cloudfunctions.net/detect`
+`POST https://asia-east1-firebase-climbio.cloudfunctions.net/detect`
 
 - 標頭：`Authorization: Bearer <Firebase ID token>`（匿名登入也可以）
 - 內容：`{ "img": "<JPEG 或 PNG 的 base64>" }`（傳原尺寸即可，長邊建議最多 2048；伺服器會縮到模型輸入的 960。在用戶端先縮到 960 再壓 JPEG 會漏掉幾顆分數接近門檻的岩點）
