@@ -70,7 +70,7 @@
 | `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框）；雲端和瀏覽器版共用，結果才會一樣 |
 | `functions/` | 雲端函式 `detect`（Node 22、onnxruntime-node、sharp；asia-east1，2 vCPU，最多 5 個執行個體） |
 | `web/detector.js` | 瀏覽器版（onnxruntime-web） |
-| `models/freeclimbs-960.onnx` | 偵測模型 |
+| `models/freeclimbs-1280.onnx` | 偵測模型 |
 
 ## 規則
 

@@ -5,7 +5,7 @@
       "codebase": "holdscan",
       "runtime": "nodejs22",
       "ignore": ["node_modules", ".git", "*.local"],
-      "predeploy": ["mkdir -p \"$RESOURCE_DIR/vendor\" && cp core/detect-core.js models/freeclimbs-960.onnx \"$RESOURCE_DIR/vendor/\""]
+      "predeploy": ["mkdir -p \"$RESOURCE_DIR/vendor\" && cp core/detect-core.js models/freeclimbs-1280.onnx \"$RESOURCE_DIR/vendor/\""]
     }
   ]
 }

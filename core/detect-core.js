@@ -1,5 +1,8 @@
 // 岩點偵測的共用核心：雲端函式（functions/）和瀏覽器版（web/detector.js）都用這一份，兩邊的結果才會一樣。
-// 模型：freeclimbs YOLOv8n（models/freeclimbs-960.onnx，AGPL-3.0），輸入 [1, 3, 960, 960]，輸出 [1, 5, N] = cx, cy, w, h, score。
+// 模型：freeclimbs YOLOv8n（models/freeclimbs-1280.onnx，AGPL-3.0），輸入 [1, 3, 1280, 1280]，輸出 [1, 5, N] = cx, cy, w, h, score。
+//
+// 輸入 1280：用 App 修正過的四面牆評估（holdlab tools/eval_detect_gt.py），比 960 召回 86.8% → 92.4%、精確 78.6% → 81.2%；
+// 1600、2048 召回差不多、誤判變多；推論時間約 2.4 倍（2 執行緒 CPU 約 0.4 秒）
 //
 // 分數門檻 0.25：用岩館實際照片看過，提高會漏掉跟牆面顏色接近的岩點，降低多出來的大多是牆上的字和岩點的影子
 // 重複框：重疊比例（IoU）超過 0.5，或一個框有 75% 落在另一個大小相近（面積比 < 2.5）的框裡，就當作同一顆岩點
@@ -9,8 +12,8 @@
   else root.HoldScanCore = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
-  const MODEL = 'freeclimbs-960';
-  const MODEL_SIZE = 960;
+  const MODEL = 'freeclimbs-1280';
+  const MODEL_SIZE = 1280;
   const CONF = 0.25, IOU = 0.5, INSIDE = 0.75, SAME_SIZE = 2.5;
 
   // 照片 w×h 要縮成多少（等比縮放貼到左上，其餘補灰 114）
