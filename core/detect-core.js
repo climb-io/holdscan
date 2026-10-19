@@ -1,8 +1,9 @@
 // 岩點偵測的共用核心：雲端函式（functions/）和瀏覽器版（web/detector.js）都用這一份，兩邊的結果才會一樣。
-// 模型：freeclimbs YOLOv8n（models/freeclimbs-1280.onnx，AGPL-3.0），輸入 [1, 3, 1280, 1280]，輸出 [1, 5, N] = cx, cy, w, h, score。
+// 模型：freeclimbs YOLOv8n（models/freeclimbs.onnx，AGPL-3.0），輸入 [1, 3, S, S]（S 可變），輸出 [1, 5, N] = cx, cy, w, h, score。
 //
 // 輸入 1280：用 App 修正過的四面牆評估（holdlab tools/eval_detect_gt.py），比 960 召回 86.8% → 92.4%、精確 78.6% → 81.2%；
 // 1600、2048 召回差不多、誤判變多；推論時間約 2.4 倍（2 執行緒 CPU 約 0.4 秒）
+// 也接受 2048、2560（SIZES）：手機廣角照片岩點小，放大召回較高（holdlab RESEARCH.md），App 電腦版的偵測測試用來比較；預設仍是 1280
 //
 // 分數門檻 0.25：用岩館實際照片看過，提高會漏掉跟牆面顏色接近的岩點，降低多出來的大多是牆上的字和岩點的影子
 // 重複框：重疊比例（IoU）超過 0.5，或一個框有 75% 落在另一個大小相近（面積比 < 2.5）的框裡，就當作同一顆岩點
@@ -12,16 +13,16 @@
   else root.HoldScanCore = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
-  const MODEL = 'freeclimbs-1280';
-  const MODEL_SIZE = 1280;
+  const MODEL = 'freeclimbs';
+  const MODEL_SIZE = 1280, SIZES = [1280, 2048, 2560];
   const CONF = 0.25, IOU = 0.5, INSIDE = 0.75, SAME_SIZE = 2.5;
 
   // 照片 w×h 要縮成多少（等比縮放貼到左上，其餘補灰 114）
-  const scaleFor = (w, h) => MODEL_SIZE / Math.max(w, h);
+  const scaleFor = (w, h, S = MODEL_SIZE) => S / Math.max(w, h);
 
   // 已經縮好、貼在左上的 RGBA（S×S，補邊是灰 114）→ NCHW float32（0–1）
-  function toTensorData(rgba) {
-    const n = MODEL_SIZE * MODEL_SIZE, out = new Float32Array(3 * n);
+  function toTensorData(rgba, S = MODEL_SIZE) {
+    const n = S * S, out = new Float32Array(3 * n);
     for (let i = 0, j = 0; i < n; i++, j += 4) {
       out[i] = rgba[j] / 255; out[n + i] = rgba[j + 1] / 255; out[2 * n + i] = rgba[j + 2] / 255;
     }
@@ -56,5 +57,5 @@
     return keep;
   }
 
-  return { MODEL, MODEL_SIZE, CONF, IOU, INSIDE, SAME_SIZE, scaleFor, toTensorData, postprocess };
+  return { MODEL, MODEL_SIZE, SIZES, CONF, IOU, INSIDE, SAME_SIZE, scaleFor, toTensorData, postprocess };
 });

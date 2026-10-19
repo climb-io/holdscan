@@ -72,12 +72,12 @@
 | `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框）；雲端和瀏覽器版共用，結果才會一樣 |
 | `functions/` | 雲端函式 `detect`（Node 22、onnxruntime-node、sharp；asia-east1，2 vCPU，最多 5 個執行個體） |
 | `web/detector.js` | 瀏覽器版（onnxruntime-web） |
-| `models/freeclimbs-1280.onnx` | 偵測模型 |
+| `models/freeclimbs.onnx` | 偵測模型 |
 
 ## 規則
 
 - 只負責「照片 → 框」，不放外框、顏色等分析（那些在 holdkit）。
-- API（`{ img }` → `{ model, boxes, w, h }`）改了，spraywall 的 `cloudDetect`（`js/app.js`）要一起改、一起部署；不留舊格式。
+- API（`{ img, size? }` → `{ model, boxes, w, h }`）改了，spraywall 的 `cloudDetect`（`js/app.js`）要一起改、一起部署；不留舊格式。
 - 門檻、去重複規則、模型要換，先用 holdlab 的評估腳本比較，結論寫進 holdlab 的 RESEARCH.md，再改 `core/detect-core.js` 開頭的說明。
 - 照片只在記憶體裡處理，不存檔、不寫紀錄（隱私權政策有承諾）。
 
