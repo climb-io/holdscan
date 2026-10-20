@@ -1,6 +1,6 @@
 // holdscan 雲端偵測：照片 → 岩點框（freeclimbs YOLOv8n，CPU）。
 // 要登入（Firebase 的 ID token，匿名也可以）才能用；照片只在記憶體裡算，不存檔。
-// 前後處理跟瀏覽器版共用 core/detect-core.js（部署時複製進來，見 firebase.json 的 predeploy）
+// 前後處理在 core/detect-core.js（部署時複製進來，見 firebase.json 的 predeploy）
 const { onRequest } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
 const ort = require('onnxruntime-node');

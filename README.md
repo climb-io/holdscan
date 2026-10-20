@@ -10,9 +10,8 @@
 
 | 路徑 | 內容 |
 |---|---|
-| `core/detect-core.js` | 共用核心：前處理、後處理（分數門檻、去重複框）。雲端和瀏覽器版都用這一份，結果才會一樣 |
+| `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框） |
 | `functions/` | 雲端偵測函式 `detect`（Firebase，asia-east1，CPU） |
-| `web/detector.js` | 瀏覽器版（onnxruntime-web，WebGPU 自我檢查，算錯就改用 CPU） |
 | `models/freeclimbs.onnx` | 偵測模型（AGPL-3.0） |
 
 ## 雲端 API

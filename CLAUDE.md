@@ -69,9 +69,8 @@
 
 | 路徑 | 內容 |
 |---|---|
-| `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框）；雲端和瀏覽器版共用，結果才會一樣 |
+| `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框） |
 | `functions/` | 雲端函式 `detect`（Node 22、onnxruntime-node、sharp；asia-east1，2 vCPU，最多 5 個執行個體） |
-| `web/detector.js` | 瀏覽器版（onnxruntime-web） |
 | `models/freeclimbs.onnx` | 偵測模型 |
 
 ## 規則
@@ -85,7 +84,7 @@
 
 | 改動 | 必跑 |
 |---|---|
-| 任何程式碼 | `node --check core/detect-core.js functions/index.js web/detector.js` |
+| 任何程式碼 | `node --check core/detect-core.js functions/index.js` |
 | 雲端函式 | 部署後 `curl -s -o /dev/null -w '%{http_code}' -X POST https://asia-east1-firebase-climbio.cloudfunctions.net/detect` 回 401，再從 App 新增一面測試牆，確認有框 |
 | 偵測結果 | 用 holdlab 的評估腳本比較改前改後 |
 
