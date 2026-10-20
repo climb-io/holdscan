@@ -50,8 +50,8 @@ exports.detect = onRequest({ region: 'asia-east1', invoker: 'public', memory: '2
     if (buf.length > MAX_BYTES) return res.status(413).json({ error: 'image too large' });
     res.json({ model: `${Core.MODEL}-${size}`, ...(await detect(buf, size)), source: 'https://github.com/climb-io/holdscan' });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: String((e && e.message) || e) });
+    console.error(e);   // 詳細原因只留在伺服器紀錄，不回給用戶端
+    res.status(500).json({ error: 'detect failed' });
   }
 });
 
