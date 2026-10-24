@@ -54,6 +54,10 @@ exports.detect = onRequest({ region: 'asia-east1', invoker: 'public', memory: '2
     res.set('Access-Control-Max-Age', '3600');
     return res.status(204).send('');
   }
+  // 預熱：App 在使用者選照片時送一個 GET，執行個體先開機、載入模型（不帶照片、不用登入、不算偵測次數）
+  if (req.method === 'GET') {
+    try { await getSession(); return res.status(204).send(''); } catch (e) { console.error(e); return res.status(500).send(''); }
+  }
   if (req.method !== 'POST') return res.status(405).send('POST only');
   let user;
   try { user = await admin.auth().verifyIdToken((req.get('authorization') || '').replace(/^Bearer /, '')); }
