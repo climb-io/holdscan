@@ -93,9 +93,14 @@
 
 ## 部署
 
+使用者的電腦（`npx firebase-tools` 已登入）：
+
 ```bash
 cd functions && npm install && cd ..
 npx firebase-tools deploy --only functions:holdscan
 ```
+
+雲端工作階段（沒有 Firebase 憑證）：用 spraywall 的 GitHub Actions，從本 repo 的 `main` 取出部署（先推上 `main`），金鑰只留在 spraywall：
+`gh workflow run firebase.yml --repo climb-io/spraywall --ref main -f only=functions:holdscan`，再 `gh run list --repo climb-io/spraywall --workflow firebase.yml` 看結果。
 
 predeploy 會把 `core/detect-core.js` 和模型複製到 `functions/vendor/`；`functions/.npmrc` 關掉 GPU 版 onnxruntime 的下載。
