@@ -3,7 +3,7 @@
 //
 // 輸入 1280：用 App 修正過的四面牆評估（holdlab tools/eval_detect_gt.py），比 960 召回 86.8% → 92.4%、精確 78.6% → 81.2%；
 // 1600、2048 召回差不多、誤判變多；推論時間約 2.4 倍（2 執行緒 CPU 約 0.4 秒）
-// 也接受 2048、2560（SIZES）：手機廣角照片岩點小，放大召回較高（holdlab RESEARCH.md），App 電腦版的偵測測試用來比較；預設仍是 1280
+// 也接受 2048、2560（SIZES）：手機廣角照片岩點小，放大召回較高（holdlab RESEARCH.md）；預設仍是 1280
 //
 // 分數門檻 0.25：用岩館實際照片看過，提高會漏掉跟牆面顏色接近的岩點，降低多出來的大多是牆上的字和岩點的影子
 // 重複框：重疊比例（IoU）超過 0.5，或一個框有 75% 落在另一個大小相近（面積比 < 2.5）的框裡，就當作同一顆岩點
@@ -53,4 +53,4 @@ function postprocess(data, r) {
   return keep;
 }
 
-module.exports = { MODEL, MODEL_SIZE, SIZES, CONF, IOU, INSIDE, SAME_SIZE, scaleFor, toTensorData, postprocess };
+module.exports = { MODEL, MODEL_SIZE, SIZES, scaleFor, toTensorData, postprocess };

@@ -75,6 +75,3 @@ exports.detect = onRequest({ region: 'asia-east1', invoker: 'public', memory: '2
     res.status(500).json({ error: 'detect failed' });
   }
 });
-
-exports._detect = detect;   // 本機測試用
-exports._takeQuota = takeQuota;
