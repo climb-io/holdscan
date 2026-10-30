@@ -12,7 +12,7 @@ const Core = require('./vendor/detect-core.js');
 
 admin.initializeApp();
 
-const ORIGINS = ['https://climbio.web.app', 'https://climbio-dev.web.app', 'https://climbio.firebaseapp.com', 'https://climb-io.github.io', 'http://localhost:8765', 'http://127.0.0.1:8765'];
+const ORIGINS = ['https://climbio.web.app', 'https://climbio-dev.web.app', 'https://climbio.firebaseapp.com', 'http://localhost:8765', 'http://127.0.0.1:8765'];
 const MAX_BYTES = 6e6, CPUS = 2, DETECT_LIMIT = 30;
 let session = null;
 
