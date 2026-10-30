@@ -1,6 +1,6 @@
 # holdscan
 
-岩點偵測服務：照片 → 岩點框。AGPL-3.0、公開 repo。使用說明與 API 見 [README.md](README.md)。
+岩點偵測服務：照片 → 岩點框。AGPL-3.0、公開 repo。結構與 API 見 [README.md](README.md)。
 
 <!-- 共同規範開始：climb-io 四個 repo（spraywall、holdscan、holdkit、holdlab）的 CLAUDE.md 這一段完全相同，改了要四個一起改 -->
 ## 語言
@@ -75,14 +75,6 @@
 - Firebase 一律用 `npx firebase-tools`（本機的 `firebase` 執行檔不能用）；回 401 先跑 `npx firebase-tools login --reauth`。
 <!-- 共同規範結束 -->
 
-## 結構
-
-| 路徑 | 內容 |
-|---|---|
-| `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框） |
-| `functions/` | 雲端函式 `detect`（Node 22、onnxruntime-node、sharp；asia-east1，2 vCPU，最多 5 個執行個體） |
-| `models/freeclimbs.onnx` | 偵測模型 |
-
 ## 規則
 
 - 只負責「照片 → 框」，不放外框、顏色等分析（那些在 holdkit）。
@@ -110,4 +102,4 @@ npx firebase-tools deploy --only functions:holdscan
 雲端工作階段（沒有 Firebase 憑證）：用 spraywall 的 GitHub Actions，從本 repo 的 `main` 取出部署（先推上 `main`），金鑰只留在 spraywall：
 `gh workflow run firebase.yml --repo climb-io/spraywall --ref main -f only=functions:holdscan`，再 `gh run list --repo climb-io/spraywall --workflow firebase.yml` 看結果。
 
-predeploy 會把 `core/detect-core.js` 和模型複製到 `functions/vendor/`；`functions/.npmrc` 關掉 GPU 版 onnxruntime 的下載。
+`detect` 的規格：Node 22，asia-east1，2 vCPU，最多 5 個執行個體。predeploy 會把 `core/detect-core.js` 和模型複製到 `functions/vendor/`；`functions/.npmrc` 關掉 GPU 版 onnxruntime 的下載。

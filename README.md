@@ -1,6 +1,6 @@
 # holdscan
 
-岩點偵測：照片 → 岩點外框。使用 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)（freeclimbs YOLOv8n），
+岩點偵測：照片 → 岩點框。使用 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)（freeclimbs YOLOv8n），
 因此本專案以 **AGPL-3.0** 授權（見 [LICENSE](LICENSE)、[models/README.md](models/README.md)）。
 
 只負責「照片 → 框」；外框描繪、MobileSAM 重描、顏色計算在 climb-io/holdkit（Apache-2.0），App 在 Climbio。
@@ -25,16 +25,6 @@
 `GET` 同一個網址＝預熱：執行個體開機、載入模型後回 204（不帶照片、不用登入、不算偵測次數）。
 
 照片只在處理當下存在伺服器記憶體中，不存檔、不留紀錄、不用來訓練模型。
-
-## 部署
-
-```bash
-cd functions && npm install && cd ..
-npx firebase-tools deploy --only functions:holdscan
-```
-
-部署時 `firebase.json` 的 predeploy 會把 `core/detect-core.js` 和模型複製到 `functions/vendor/`。
-`functions/.npmrc` 關掉 onnxruntime-node 安裝時下載 GPU（CUDA）版本。
 
 ## 授權
 
