@@ -1,5 +1,10 @@
 # holdscan
 
+> **這個 repo 已不再更新。** holdscan 已經併進 Climbio，之後會在 [climb-io/climbio](https://github.com/climb-io/climbio) 跟 App 一起公開（`holdscan/` 資料夾）。
+>
+> **This repository is no longer updated.** holdscan has moved into Climbio and will be published with the app at [climb-io/climbio](https://github.com/climb-io/climbio) (the `holdscan/` folder).
+
+
 岩點偵測：照片 → 岩點框。使用 [jwlarocque/yolov8n-freeclimbs-detect-2](https://huggingface.co/jwlarocque/yolov8n-freeclimbs-detect-2)（freeclimbs YOLOv8n），
 因此本專案以 **AGPL-3.0** 授權（見 [LICENSE](LICENSE)、[models/README.md](models/README.md)）。
 
