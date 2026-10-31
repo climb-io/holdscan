@@ -87,7 +87,7 @@
 
 | 改動 | 必跑 |
 |---|---|
-| 任何程式碼 | `node --check core/detect-core.js functions/index.js` |
+| 任何程式碼 | `node --check core/detect-core.js functions/index.js functions/handler.js functions/server.js` |
 | 雲端函式 | 部署後 `curl -s -o /dev/null -w '%{http_code}' -X POST https://asia-east1-firebase-climbio.cloudfunctions.net/detect` 回 401，再從 App 新增一面測試牆，確認有框 |
 | 偵測結果 | 用 holdlab 的評估腳本比較改前改後 |
 

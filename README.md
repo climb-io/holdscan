@@ -11,7 +11,8 @@
 | 路徑 | 內容 |
 |---|---|
 | `core/detect-core.js` | 前處理、後處理（分數門檻、去重複框） |
-| `functions/` | 雲端偵測函式 `detect`（Firebase，asia-east1，CPU） |
+| `functions/` | 雲端偵測 `detect`：處理在 `handler.js`（跟平台無關），外殼有 Firebase 版 `index.js`（asia-east1，CPU，每個帳號每天 30 次）和一般 Node 伺服器版 `server.js` |
+| `Dockerfile` | `server.js` 的容器映像 |
 | `models/freeclimbs.onnx` | 偵測模型（AGPL-3.0） |
 
 ## 雲端 API
@@ -25,6 +26,32 @@
 `GET` 同一個網址＝預熱：執行個體開機、載入模型後回 204（不帶照片、不用登入、不算偵測次數）。
 
 照片只在處理當下存在伺服器記憶體中，不存檔、不留紀錄、不用來訓練模型。
+
+## 自己架設
+
+`functions/server.js` 是同一個服務的一般 Node 伺服器版，不需要 Firebase，Docker、Cloud Run、Fly 或自己的機器都能跑（記憶體至少 2 GB）：
+
+```bash
+docker build -t holdscan-detect .
+docker run -p 8080:8080 -e API_KEY=換成你的密鑰 -e ORIGINS=https://你的網站 holdscan-detect
+```
+
+不用 Docker：
+
+```bash
+mkdir -p functions/vendor && cp core/detect-core.js models/freeclimbs.onnx functions/vendor/
+cd functions && npm install && API_KEY=換成你的密鑰 node server.js
+```
+
+| 環境變數 | 說明 |
+|---|---|
+| `AUTH` | `key`（預設，`Authorization: Bearer` 要等於 `API_KEY`）、`firebase`（Firebase 的 ID token）或 `none`（不驗證，只在本機或私人網路用） |
+| `API_KEY` | `AUTH=key` 的密鑰 |
+| `ORIGINS` | 允許跨網域呼叫的網站，逗號分隔；`*` 是全部 |
+| `DETECT_CPUS` | 推論執行緒數，照分到的 vCPU 設（預設 2） |
+| `PORT` | 預設 8080 |
+
+一般伺服器版沒有每日次數限制；公開架設時用 `AUTH=key`，或在前面的閘道限流。依 AGPL-3.0，改過的版本透過網路提供服務時，要讓使用者取得你的原始碼（回傳的 `source` 改成你的 repo）。
 
 ## 授權
 
